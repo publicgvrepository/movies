@@ -1,7 +1,6 @@
 # TEST Movies on CSV
 
-This is just a little technical test to a job interview.
-
+Este es un pequeño proyecto para una prueba técnica.
 
 
 ## Getting Started
@@ -22,20 +21,22 @@ Una vez subido, debe proveerse un endpoint para consultar:
 
 ## Preconditions and assumptions
 
-- Se asume que el csv siempre tiene el mismo orden de campos y separadores.
+- Se asume que el csv siempre tiene el mismos campos y separadores.
 
-- Trabajo con el csv en memoria suponiendo que no serán grande en tamaño.
+- Trabajo con el csv en memoria suponiendo que no serán más grande en tamaño (al del ejemplo facilitado).
 
 - Sólo cargo los campos necesarios para el csv por razones de tiempo de entrega.
 
 - Asumo que budget no viene con comas ni puntos (p.e. $ 10,333.03).
+
+- Separo budget en currency y budget (p.e., $ y 10333.03)
 
 - Si no se pueden cargar todos los datos del csv, no carga ninguno.
 
 
 ## Installing
 
-**1)** clone the repository
+**1)** clonar repositorio
 
 **2)** virtualenv -p python3 .venv && source .venv/bin/activate
 
@@ -56,7 +57,9 @@ Una vez subido, debe proveerse un endpoint para consultar:
 Method | Endpoint | Functionality
 --- | --- | ---
 
-POST | `/api/movie/load` | Upload csv file
+POST | `/api/movie/load` | Cargar el cvs file
+GET | `total-usa` | Costo total (budget) de todas las películas cuyo país es USA
+GET | `average-usa` | Costo promedio de todas las películas cuyo país es USA
 
 
 ## Usage and examples

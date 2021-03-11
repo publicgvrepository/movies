@@ -19,7 +19,7 @@ class Movie(models.Model):
         description: True story of notorious Australian outlaw Ned Kelly (1855-80).
         avg_vote: 6.1
         votes: 589
-        budget: $ 2250
+        budget: $ 2250 ---> currency = $, budget = 2250
         usa_gross_income:
         worlwide_gross_income:
         metascore:
@@ -28,7 +28,8 @@ class Movie(models.Model):
     """
     imdb_title_id = models.CharField(max_length=255, unique=True)
     title = models.CharField(max_length=255)
-    budget = models.CharField(max_length=255)
+    currency = models.CharField(max_length=4)
+    budget = models.DecimalField(max_digits=15, decimal_places=2)
     country = models.CharField(max_length=255)
 
     def __str__(self):

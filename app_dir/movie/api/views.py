@@ -1,12 +1,16 @@
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import generics
+from rest_framework.views import APIView
 from django.db import IntegrityError, transaction
 import csv, io
 import json
+from django.db.models import Avg, Sum
+
 from decimal import Decimal
 
-from .serializers import FileUploadSerializer
+from .serializers import FileUploadSerializer, AverageUSABudgetMoviesSerializer, \
+    TotalUSABudgetMoviesSerializer
 from ..models import Movie
 
 
@@ -20,10 +24,8 @@ class FileUploadAPIView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         file = serializer.validated_data['file']
         decoded_file = file.read().decode('UTF-8')
-        # upload_products_csv.delay(decoded_file, request.user.pk)
         io_string = io.StringIO(decoded_file)
         reader = csv.DictReader(io_string)
-
         try:
             with transaction.atomic():
                 for row in reader:
@@ -31,10 +33,44 @@ class FileUploadAPIView(generics.CreateAPIView):
                         imdb_title_id = row['imdb_title_id'],
                         title = row['title'],
                         country = row['country'],
-                        budget = row['budget']
+                        budget = row['budget'].split()[1] if row['budget'] else 0.0,
+                        currency = row['budget'].split()[0] if row['budget'] else ""
                     )
         except Exception as e:
-            # Transaction failed - return a response notifying the client
             content = json.dumps(e)
             status_response = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return Response(content, status=status_response)
+
+
+class AverageUSABudgetMoviesAPIView(APIView):
+
+    def get(self, request, format=None):
+        """
+            Returns total budget from USA's movies
+        """
+        status_response = status.HTTP_200_OK
+        content = {}
+        average = Movie.objects \
+            .filter(country__icontains='usa') \
+            .aggregate(budget_average=Avg('budget'))
+        serializer = AverageUSABudgetMoviesSerializer(data=average)
+        if serializer.is_valid(raise_exception=True):
+            content = serializer.data
+        return Response(content, status=status_response)
+
+
+class TotalUSABudgetMoviesAPIView(APIView):
+
+    def get(self, request, format=None):
+        """
+            Returns total budget from USA's movies
+        """
+        status_response = status.HTTP_200_OK
+        content = {}
+        total = Movie.objects \
+            .filter(country__icontains='usa') \
+            .aggregate(budget_total=Sum('budget'))
+        serializer = TotalUSABudgetMoviesSerializer(data=total)
+        if serializer.is_valid(raise_exception=True):
+            content = serializer.data
         return Response(content, status=status_response)
