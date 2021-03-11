@@ -47,11 +47,13 @@ Una vez subido, debe proveerse un endpoint para consultar:
 
 **3)** pip install -r requirements.txt
 
-**4)** python manage.py migrate
+**4)** python manage.py makemigrations
 
-**5)** python manage.py createsuperuser
+**5)** python manage.py migrate
 
-**6)** python manage.py runserver
+**6)** python manage.py createsuperuser
+
+**7)** python manage.py runserver
 
 
 ## User Endpoints
