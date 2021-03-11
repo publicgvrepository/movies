@@ -56,15 +56,17 @@ Una vez subido, debe proveerse un endpoint para consultar:
 
 Method | Endpoint | Functionality
 --- | --- | ---
-
 POST | `/api/movie/load` | Cargar el cvs file
-GET | `total-usa` | Costo total (budget) de todas las películas cuyo país es USA
-GET | `average-usa` | Costo promedio de todas las películas cuyo país es USA
+GET | `/api/movie/total-usa` | Costo total (budget) de todas las películas cuyo país es USA
+GET | `/api/movie/average-usa` | Costo promedio de todas las películas cuyo país es USA
 
 
 ## Usage and examples
 
 Once you create your superuser, open browser on http://localhost:8000/admin/
+
+- curl -H "Content-Type: application/json" http://localhost:8000/api/movie/total-usa
+- curl -H "Content-Type: application/json" http://localhost:8000/api/movie/average-usa
 
 
 ## Built With

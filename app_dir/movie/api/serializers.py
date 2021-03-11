@@ -19,6 +19,7 @@ class FileUploadSerializer(serializers.Serializer):
 class AverageUSABudgetMoviesSerializer(serializers.Serializer):
     budget_average = serializers.DecimalField(max_digits=15, decimal_places=2)
 
+
 class TotalUSABudgetMoviesSerializer(serializers.Serializer):
     budget_total = serializers.DecimalField(max_digits=15, decimal_places=2)
 

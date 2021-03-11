@@ -6,7 +6,6 @@ from django.db import IntegrityError, transaction
 import csv, io
 import json
 from django.db.models import Avg, Sum
-
 from decimal import Decimal
 
 from .serializers import FileUploadSerializer, AverageUSABudgetMoviesSerializer, \
@@ -53,6 +52,7 @@ class AverageUSABudgetMoviesAPIView(APIView):
         average = Movie.objects \
             .filter(country__icontains='usa') \
             .aggregate(budget_average=Avg('budget'))
+        average['budget_average'] = round(average['budget_average'],2)
         serializer = AverageUSABudgetMoviesSerializer(data=average)
         if serializer.is_valid(raise_exception=True):
             content = serializer.data
