@@ -5,7 +5,12 @@ Este es un pequeño proyecto para una prueba técnica.
 
 ## Getting Started
 
-Backend Python / DRF:
+**Python:**
+
+Escribir el código en Python3, que dada las dos listas ordenadas de nombres, devolver una única lista ordenada que incluya ambas. Se espera un proyecto armado en Github.
+
+
+**Backend Python / DRF:**
 
 Armar un proyecto en github con una API en python+django que resuelva la siguiente funcionalidad.
 
@@ -42,14 +47,11 @@ Una vez subido, debe proveerse un endpoint para consultar:
 
 **3)** pip install -r requirements.txt
 
-**4)** python manage.py makemigrations
+**4)** python manage.py migrate
 
-**5)** python manage.py migrate
+**5)** python manage.py createsuperuser
 
-**6)** python manage.py createsuperuser
-
-**7)** python manage.py runserver
-
+**6)** python manage.py runserver
 
 
 ## User Endpoints
@@ -67,7 +69,14 @@ Once you create your superuser, open browser on http://localhost:8000/admin/
 
 - curl -H "Content-Type: application/json" http://localhost:8000/api/movie/total-usa
 - curl -H "Content-Type: application/json" http://localhost:8000/api/movie/average-usa
+- curl -X POST -F "file=@<file_path_csv>" http://localhost:8000/api/movie/load
 
+
+## Ejercicio Merge Sort
+
+Ya con el virtualenv activado:
+
+- python merge_sort/merge_sort.py
 
 ## Built With
 
