@@ -3,7 +3,8 @@ from rest_framework import status
 from rest_framework import generics
 from rest_framework.views import APIView
 from django.db import IntegrityError, transaction
-import csv, io
+import csv
+import io
 import json
 from django.db.models import Avg, Sum
 from decimal import Decimal
@@ -29,11 +30,13 @@ class FileUploadAPIView(generics.CreateAPIView):
             with transaction.atomic():
                 for row in reader:
                     Movie.objects.create(
-                        imdb_title_id = row['imdb_title_id'],
-                        title = row['title'],
-                        country = row['country'],
-                        budget = row['budget'].split()[1] if row['budget'] else 0.0,
-                        currency = row['budget'].split()[0] if row['budget'] else ""
+                        imdb_title_id=row['imdb_title_id'],
+                        title=row['title'],
+                        country=row['country'],
+                        budget=row['budget'].split(
+                        )[1] if row['budget'] else 0.0,
+                        currency=row['budget'].split(
+                        )[0] if row['budget'] else ""
                     )
         except Exception as e:
             content = json.dumps(e)
@@ -52,7 +55,7 @@ class AverageUSABudgetMoviesAPIView(APIView):
         average = Movie.objects \
             .filter(country__icontains='usa') \
             .aggregate(budget_average=Avg('budget'))
-        average['budget_average'] = round(average['budget_average'],2)
+        average['budget_average'] = round(average['budget_average'], 2)
         serializer = AverageUSABudgetMoviesSerializer(data=average)
         if serializer.is_valid(raise_exception=True):
             content = serializer.data

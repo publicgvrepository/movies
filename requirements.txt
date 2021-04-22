@@ -20,3 +20,9 @@ requests==2.20.0
 six==1.10.0
 text-unidecode==1.2
 urllib3==1.24.2
+ipython
+pylint
+pytest
+flake8
+celery
+redis
