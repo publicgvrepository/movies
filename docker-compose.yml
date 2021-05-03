@@ -4,9 +4,10 @@ services:
     django:
         build: .
         container_name: django
-        command: python manage.py runserver 0.0.0.0:8000
+        command: ./start-django.sh
         volumes:
             - .:/usr/src/app/
+            - tmp:/tmp
         ports:
             - "8000:8000"
         environment:
@@ -18,9 +19,11 @@ services:
             - redis
     celery:
         build: .
-        command: celery -A configurations worker -l INFO
+        container_name: celery
+        command: celery -A configurations worker -l DEBUG
         volumes:
             - .:/usr/src/app
+            - tmp:/tmp
         environment:
             - DEBUG=1
             - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
@@ -31,5 +34,8 @@ services:
             - redis
     redis:
         image: "redis:alpine"
+
+volumes:
+    tmp:
         
 

@@ -1,20 +1,26 @@
+from ..models import Movie
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import generics
 from rest_framework.views import APIView
-from django.db import IntegrityError, transaction
-import csv
-import io
-import json
-from django.db.models import Avg, Sum
-from decimal import Decimal
+# from django.db import transaction
 
-from .serializers import FileUploadSerializer, AverageUSABudgetMoviesSerializer, \
-    TotalUSABudgetMoviesSerializer
-from ..models import Movie
+# import json
+from django.db.models import Avg, Sum
+from .serializers import (FileUploadSerializer,
+                          AverageUSABudgetMoviesSerializer,
+                          TotalUSABudgetMoviesSerializer)
+
+from ..tasks import task_transaction_test, task_validating_csv
+import io
+import pandas as pd
+import os
 
 
 class FileUploadAPIView(generics.CreateAPIView):
+    """
+    DB transaction in Celery task
+    """
     serializer_class = FileUploadSerializer
 
     def post(self, request, *args, **kwargs):
@@ -25,22 +31,16 @@ class FileUploadAPIView(generics.CreateAPIView):
         file = serializer.validated_data['file']
         decoded_file = file.read().decode('UTF-8')
         io_string = io.StringIO(decoded_file)
-        reader = csv.DictReader(io_string)
-        try:
-            with transaction.atomic():
-                for row in reader:
-                    Movie.objects.create(
-                        imdb_title_id=row['imdb_title_id'],
-                        title=row['title'],
-                        country=row['country'],
-                        budget=row['budget'].split(
-                        )[1] if row['budget'] else 0.0,
-                        currency=row['budget'].split(
-                        )[0] if row['budget'] else ""
-                    )
-        except Exception as e:
-            content = json.dumps(e)
-            status_response = status.HTTP_500_INTERNAL_SERVER_ERROR
+        df = pd.read_csv(io_string)
+        file_name = f"/tmp/{file.name}"
+        if os.path.exists(file_name):
+            content = {'msj': "file already uploaded"}
+            status_response = status.HTTP_400_BAD_REQUEST
+        else:
+            df.to_csv(file_name)
+            cadena = (task_validating_csv.s(file_name) |
+                      task_transaction_test.si(file_name)).apply_async()
+            content = {'msj': "loadding movies"}
         return Response(content, status=status_response)
 
 
