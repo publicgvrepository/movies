@@ -1,20 +1,17 @@
-from ..models import Movie
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework import generics
-from rest_framework.views import APIView
-# from django.db import transaction
-
-# import json
-from django.db.models import Avg, Sum
-from .serializers import (FileUploadSerializer,
-                          AverageUSABudgetMoviesSerializer,
-                          TotalUSABudgetMoviesSerializer)
-
-from ..tasks import task_transaction_test, task_validating_csv
 import io
-import pandas as pd
 import os
+
+import pandas as pd
+from app_dir.movie.api.serializers import (AverageUSABudgetMoviesSerializer,
+                                           FileUploadSerializer,
+                                           TotalUSABudgetMoviesSerializer)
+from app_dir.movie.models import Movie
+from app_dir.movie.tasks import (error_handler, task_transaction_test,
+                                 task_validating_csv)
+from django.db.models import Avg, Sum
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
 class FileUploadAPIView(generics.CreateAPIView):
@@ -34,12 +31,13 @@ class FileUploadAPIView(generics.CreateAPIView):
         df = pd.read_csv(io_string)
         file_name = f"/tmp/{file.name}"
         if os.path.exists(file_name):
-            content = {'msj': "file already uploaded"}
             status_response = status.HTTP_400_BAD_REQUEST
+            content = {'msj': "file already exists"}
         else:
             df.to_csv(file_name)
-            cadena = (task_validating_csv.s(file_name) |
-                      task_transaction_test.si(file_name)).apply_async()
+            task_chain = (task_validating_csv.s(file_name,) |
+                          task_transaction_test.si(file_name)
+                          ).on_error(error_handler.s()).apply_async()
             content = {'msj': "loadding movies"}
         return Response(content, status=status_response)
 

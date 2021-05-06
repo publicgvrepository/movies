@@ -1,5 +1,4 @@
+from app_dir.movie.models import Movie
 from django.contrib import admin
-
-from .models import Movie
 
 admin.site.register(Movie)
